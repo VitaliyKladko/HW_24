@@ -1,6 +1,6 @@
 import os
 from flask import Blueprint, request, jsonify, Response
-from typing import Optional, Callable, Iterator, Tuple
+from typing import Optional, Callable, Iterator, Iterable, Any
 from utils import log_generator, dict_of_utils
 from constants import BASE_DIR, DATA_DIR
 
@@ -9,7 +9,7 @@ main_bp: Blueprint = Blueprint('main', __name__)
 
 
 @main_bp.route('/perform_query', methods=['POST'])
-def perform_query() -> Tuple[Response, int] | Response:
+def perform_query() -> Response:
     json_query: Optional[dict] = request.json
     file_name: Optional[str] = json_query.get('filename')
 
@@ -23,7 +23,7 @@ def perform_query() -> Tuple[Response, int] | Response:
     cmd_1, value_1 = commands_and_values[0].values()
     cmd_2, value_2 = commands_and_values[1].values()
 
-    default_generator = log_generator()
+    default_generator: Iterator = log_generator()
 
     first_func: Optional[Callable] = dict_of_utils.get(cmd_1)
     second_func: Optional[Callable] = dict_of_utils.get(cmd_2)
@@ -33,4 +33,4 @@ def perform_query() -> Tuple[Response, int] | Response:
         result = first_func(param=value_1, generate=default_generator)
         if second_func is not None:
             result = second_func(param=value_2, generate=result)
-    return jsonify(list(result)), 200
+    return jsonify(list(result))
